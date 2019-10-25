@@ -1,7 +1,7 @@
 import random
 random.seed()
 
-def node:
+def Node:
     def __init__(self, neighborhood=[], red_balls=1, black_balls=1, delta=3):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
@@ -25,7 +25,7 @@ def node:
         else:
             black_balls = black_balls + delta
 
-def memoryless_node:
+def MemorylessNode:
     def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=3, delta=3):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
