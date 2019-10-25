@@ -1,4 +1,5 @@
 import networkx as nx
+from network import MemorylessNode
 
 def construct_barabasi(size):
     # gotta learn what the second parameter means
