@@ -1,9 +1,10 @@
 import networkx as nx
+from copy import deepcopy
 from network import MemorylessNode
 
 def construct_barabasi(size):
     # gotta learn what the second parameter means
-    graph = nx.barabsi_albert_graph(size, 5)
+    graph = nx.barabasi_albert_graph(size, 5)
 
     return graph.edges
 
@@ -15,17 +16,33 @@ def simulation(size):
     # build the node objects
     for edge in edges:
         # add connection to first node
-        node = nodes[edge[0]]
-        if node == None:
-            node = MemorylessNode([edge[1]])
+        if not nodes[edge[0]]:
+            nodes[edge[0]] = MemorylessNode([edge[1]])
         else:
-            node.neighborhood = node.neighborhood.append(edge[1])
+            nodes[edge[0]].add_neighbor(edge[1])
 
         # second node
-        node = nodes[edge[1]]
-        if node == None:
-            node = MemorylessNode([edge[0]])
+        if not nodes[edge[1]]:
+            nodes[edge[1]] = MemorylessNode([edge[0]])
         else:
-            node.neighborhood = node.neighborhood.append(edge[0])
+            nodes[edge[1]].add_neighbor(edge[0])
 
-        # run the simulation
+    # run the simulation
+    runtime = 1000
+    for t in range(runtime):
+        # remove values that are out of network's memory
+        for node in nodes:
+            node.update()
+
+        # draw from urns
+        new_nodes = deepcopy(nodes)
+        for node in new_nodes:
+            node.draw(nodes)
+        # don't update any nodes until all draws have been made
+        nodes = new_nodes
+
+    # show off results somehow
+    print(nodes)
+
+if __name__ == '__main__':
+    simulation(10)
