@@ -32,17 +32,21 @@ class MemorylessNode:
         self.black_balls = black_balls
         self.additional_red = [0 for x in range(memory)]
         self.additional_black = [0 for x in range(memory)]
+        self.delta = delta
 
     def update(self):
-        red_balls = red_balls - additional_red.pop(0)
-        black_balls = black_balls - additional_black.pop(0)
+        self.red_balls = self.red_balls - self.additional_red.pop(0)
+        self.black_balls = self.black_balls - self.additional_black.pop(0)
+
+    def add_neighbor(self, neighbor):
+        self.neighborhood.append(neighbor)
 
     def draw(self, nodes):
         # construct super urn
-        total_red = red_balls
-        total_black = black_balls
+        total_red = self.red_balls
+        total_black = self.black_balls
 
-        for address in neighborhood:
+        for address in self.neighborhood:
             node = nodes[address]
             total_red = total_red + node.red_balls
             total_black = total_black + node.black_balls
@@ -51,10 +55,10 @@ class MemorylessNode:
         red_prob = total_red / (total_red + total_black)
         # should this be <= or < ?
         if (random.uniform(0,1) <= red_prob):
-            red_balls = red_balls + delta
-            additional_red.append(delta)
-            additional_black.append(0)
+            self.red_balls = self.red_balls + self.delta
+            self.additional_red.append(self.delta)
+            self.additional_black.append(0)
         else:
-            black_balls = black_balls + delta
-            additional_black.append(delta)
-            additional_red.append(delta)
+            self.black_balls = self.black_balls + self.delta
+            self.additional_black.append(self.delta)
+            self.additional_red.append(0)
