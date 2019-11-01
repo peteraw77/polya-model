@@ -62,10 +62,12 @@ class MemorylessNode:
             self.red_balls = self.red_balls + self.delta
             self.additional_red.append(self.delta)
             self.additional_black.append(0)
+            return 1
         else:
             self.black_balls = self.black_balls + self.delta
             self.additional_black.append(self.delta)
             self.additional_red.append(0)
+            return 0
 
 # functions for network analysis
 def network_infection_rate(nodes):
