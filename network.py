@@ -67,3 +67,11 @@ class MemorylessNode:
             self.additional_black.append(self.delta)
             self.additional_red.append(0)
 
+# functions for network analysis
+def network_infection_rate(nodes):
+    infection_rate = 0
+    for node in nodes:
+        total_red, total_black = node.construct_super_urn(nodes)
+        infection_rate = infection_rate + total_red / (total_red + total_black)
+
+    return infection_rate / len(nodes)
