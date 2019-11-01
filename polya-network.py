@@ -1,7 +1,7 @@
 import random
 random.seed()
 
-class Node:
+class ClassicalNode:
     def __init__(self, neighborhood=[], red_balls=1, black_balls=1, delta=3):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
