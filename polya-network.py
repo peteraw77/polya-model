@@ -19,8 +19,7 @@ class ClassicalNode:
 
         # draw
         red_prob = total_red / (total_red + total_black)
-        # should this be <= or < ?
-        if (random.uniform(0,1) <= red_prob):
+        if (random.random() < red_prob):
             self.red_balls = self.red_balls + self.delta
         else:
             self.black_balls = self.black_balls + delta
@@ -58,7 +57,7 @@ class MemorylessNode:
         # draw
         red_prob = total_red / (total_red + total_black)
         # should this be <= or < ?
-        if (random.uniform(0,1) <= red_prob):
+        if (random.random() < red_prob):
             self.red_balls = self.red_balls + self.delta
             self.additional_red.append(self.delta)
             self.additional_black.append(0)
