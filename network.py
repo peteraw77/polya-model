@@ -41,8 +41,7 @@ class MemorylessNode:
     def add_neighbor(self, neighbor):
         self.neighborhood.append(neighbor)
 
-    def draw(self, nodes):
-        # construct super urn
+    def construct_super_urn(self, nodes):
         total_red = self.red_balls
         total_black = self.black_balls
 
@@ -50,6 +49,11 @@ class MemorylessNode:
             node = nodes[address]
             total_red = total_red + node.red_balls
             total_black = total_black + node.black_balls
+
+        return (total_red, total_black)
+
+    def draw(self, nodes):
+        total_red, total_black = self.construct_super_urn(nodes)
 
         # draw
         red_prob = total_red / (total_red + total_black)
@@ -62,3 +66,4 @@ class MemorylessNode:
             self.black_balls = self.black_balls + self.delta
             self.additional_black.append(self.delta)
             self.additional_red.append(0)
+
