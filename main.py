@@ -1,6 +1,6 @@
 import networkx as nx
 from copy import deepcopy
-from network import MemorylessNode
+from network import FiniteNode
 
 def construct_barabasi(size):
     # gotta learn what the second parameter means
@@ -17,13 +17,13 @@ def simulation(size, runtime):
     for edge in edges:
         # add connection to first node
         if not nodes[edge[0]]:
-            nodes[edge[0]] = MemorylessNode([edge[1]])
+            nodes[edge[0]] = FiniteNode([edge[1]])
         else:
             nodes[edge[0]].add_neighbor(edge[1])
 
         # second node
         if not nodes[edge[1]]:
-            nodes[edge[1]] = MemorylessNode([edge[0]])
+            nodes[edge[1]] = FiniteNode([edge[0]])
         else:
             nodes[edge[1]].add_neighbor(edge[0])
 

@@ -1,7 +1,7 @@
 import random
 random.seed()
 
-class ClassicalNode:
+class InfiniteNode:
     def __init__(self, neighborhood=[], red_balls=1, black_balls=1, delta=3):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
@@ -24,7 +24,7 @@ class ClassicalNode:
         else:
             self.black_balls = self.black_balls + delta
 
-class MemorylessNode:
+class FiniteNode:
     def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=3, delta=3):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
