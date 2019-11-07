@@ -28,7 +28,10 @@ def simulation(size, runtime):
             nodes[edge[1]].add_neighbor(edge[0])
 
     # run the simulation
+    infection_node_zero = []
     for t in range(runtime):
+        node_zero_red, node_zero_black = nodes[0].construct_super_urn(nodes)
+        infection_node_zero.append(node_zero_red / (node_zero_red + node_zero_black))
         # remove values that are out of network's memory
         for node in nodes:
             node.update()
@@ -41,7 +44,7 @@ def simulation(size, runtime):
         nodes = new_nodes
 
     # show off results somehow
-    print(nodes)
+    print(infection_node_zero)
 
 if __name__ == '__main__':
     simulation(10, 1000)
