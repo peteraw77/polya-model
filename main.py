@@ -1,6 +1,6 @@
 import networkx as nx
 from copy import deepcopy
-from network import FiniteNode
+from polya import FiniteNode
 
 def construct_barabasi(size):
     # gotta learn what the second parameter means
