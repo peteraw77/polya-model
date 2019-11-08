@@ -2,7 +2,7 @@ import networkx as nx
 from copy import deepcopy
 from polya import FiniteNode, network_infection_rate
 import matplotlib.pyplot as plt
-
+# hello
 def construct_barabasi(size):
     # gotta learn what the second parameter means
     graph = nx.barabasi_albert_graph(size, 5)
