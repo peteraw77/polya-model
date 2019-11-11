@@ -2,6 +2,7 @@ import networkx as nx
 from copy import deepcopy
 from polya import FiniteNode, InfiniteNode, network_infection_rate
 import matplotlib.pyplot as plt
+from scipy.io import loadmat
 # hello
 def construct_barabasi(size):
     # gotta learn what the second parameter means
@@ -11,22 +12,18 @@ def construct_barabasi(size):
 
 # size is the number of nodes
 def simulation(NodeType, size, runtime):
-    edges = construct_barabasi(size)
-    nodes = [None for x in range(size)]
+    #edges = construct_barabasi(size)
+    adjacency = loadmat('BA_Adj.mat')['A']
+    nodes = [None for x in range(len(adjacency))]
 
     # build the node objects
-    for edge in edges:
-        # add connection to first node
-        if not nodes[edge[0]]:
-            nodes[edge[0]] = NodeType([edge[1]])
-        else:
-            nodes[edge[0]].add_neighbor(edge[1])
-
-        # second node
-        if not nodes[edge[1]]:
-            nodes[edge[1]] = NodeType([edge[0]])
-        else:
-            nodes[edge[1]].add_neighbor(edge[0])
+    for i in range(len(adjacency)):
+        for j in range(len(adjacency[0])):
+            if adjacency[i][j] == 1:
+                if not nodes[i]:
+                    nodes[i] = NodeType([j])
+                else:
+                    nodes[i].add_neighbor(j)
 
     # run the simulation
     infection_node_zero = []
