@@ -2,10 +2,29 @@ import random
 random.seed()
 
 class InfiniteNode:
-    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, delta=3):
+    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, delta=1):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
         self.black_balls = black_balls
+        self.delta = delta
+
+    def update(self):
+        # do nothing!
+        return None
+
+    def add_neighbor(self, neighbor):
+        self.neighborhood.append(neighbor)
+
+    def construct_super_urn(self, nodes):
+        total_red = self.red_balls
+        total_black = self.black_balls
+
+        for address in self.neighborhood:
+            node = nodes[address]
+            total_red = total_red + node.red_balls
+            total_black = total_black + node.black_balls
+
+        return (total_red, total_black)
 
     def draw(self, nodes):
         # construct super urn
@@ -22,10 +41,10 @@ class InfiniteNode:
         if (random.random() < red_prob):
             self.red_balls = self.red_balls + self.delta
         else:
-            self.black_balls = self.black_balls + delta
+            self.black_balls = self.black_balls + self.delta
 
 class FiniteNode:
-    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=3, delta=3):
+    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=3, delta=1):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
         self.black_balls = black_balls

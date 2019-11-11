@@ -1,6 +1,6 @@
 import networkx as nx
 from copy import deepcopy
-from polya import FiniteNode, network_infection_rate
+from polya import FiniteNode, InfiniteNode, network_infection_rate
 import matplotlib.pyplot as plt
 # hello
 def construct_barabasi(size):
@@ -10,7 +10,7 @@ def construct_barabasi(size):
     return graph.edges
 
 # size is the number of nodes
-def simulation(size, runtime):
+def simulation(NodeType, size, runtime):
     edges = construct_barabasi(size)
     nodes = [None for x in range(size)]
 
@@ -18,13 +18,13 @@ def simulation(size, runtime):
     for edge in edges:
         # add connection to first node
         if not nodes[edge[0]]:
-            nodes[edge[0]] = FiniteNode([edge[1]])
+            nodes[edge[0]] = NodeType([edge[1]])
         else:
             nodes[edge[0]].add_neighbor(edge[1])
 
         # second node
         if not nodes[edge[1]]:
-            nodes[edge[1]] = FiniteNode([edge[0]])
+            nodes[edge[1]] = NodeType([edge[0]])
         else:
             nodes[edge[1]].add_neighbor(edge[0])
 
@@ -59,4 +59,5 @@ def simulation(size, runtime):
     plt.show()
 
 if __name__ == '__main__':
-    simulation(10, 1000)
+    simulation(FiniteNode, 10, 1000)
+    simulation(InfiniteNode, 10, 1000)
