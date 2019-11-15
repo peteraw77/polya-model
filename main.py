@@ -3,6 +3,7 @@ from copy import deepcopy
 from polya import FiniteNode, InfiniteNode, network_infection_rate
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
+from tqdm import tqdm
 # hello
 def construct_barabasi_graph(size):
     # consider using variable size for number of connections
@@ -74,8 +75,8 @@ if __name__ == '__main__':
     avg_infinite_node = []
     avg_infinite_network = []
 
-    for x in range(trials):
-        print('Trial number ' + str(x))
+    print('Starting simulation')
+    for x in tqdm(range(trials)):
         finite_node,finite_network = simulation(finite_adj_matrix, FiniteNode, runtime)
         infinite_node,infinite_network = simulation(infinite_adj_matrix, InfiniteNode, runtime)
 
