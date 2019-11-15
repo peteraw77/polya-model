@@ -45,16 +45,45 @@ def simulation(NodeType, size, runtime):
         # don't update any nodes until all draws have been made
         nodes = new_nodes
 
-    # show off results somehow
-    plt.figure('Node0')
-    plt.plot(range(runtime), infection_node_zero)
-    plt.title('Infection rate for Node 0')
-
-    plt.figure('Network')
-    plt.plot(range(runtime), avg_infection_rate)
-    plt.title('Average Infection Rate of Network')
-    plt.show()
+    return (infection_node_zero, avg_infection_rate)
 
 if __name__ == '__main__':
-    simulation(FiniteNode, 10, 1000)
-    simulation(InfiniteNode, 10, 1000)
+    trials = 5000
+    runtime = 1000
+
+    avg_finite_node = []
+    avg_finite_network = []
+    avg_infinite_node = []
+    avg_infinite_network = []
+
+    for x in range(trials):
+        print('Trial number ' + str(x))
+        finite_node,finite_network = simulation(FiniteNode, 10, 1000)
+        infinite_node,infinite_network = simulation(InfiniteNode, 10, 1000)
+
+        avg_finite_node.append(finite_node)
+        avg_finite_network.append(finite_network)
+        avg_infinite_node.append(infinite_node)
+        avg_infinite_network.append(infinite_network)
+    avg_finite_node = avg_finite_node / trials
+    avg_finite_network = avg_finite_network / trials
+    avg_infinite_node = avg_infinite_node / trials
+    avg_infinite_network = avg_infinite_network / trials
+
+
+    plt.figure('FiniteNode')
+    plt.plot(range(runtime), avg_finite_node)
+    plt.title('Infection rate for Node 0 [FINITE]')
+
+    plt.figure('InfiniteNode')
+    plt.plot(range(runtime), avg_infinite_node)
+    plt.title('Infection rate for Node 0 [INFINITE]')
+
+    plt.figure('FiniteNetwork')
+    plt.plot(range(runtime), avg_finite_network)
+    plt.title('Average Infection Rate of Network [FINITE]')
+
+    plt.figure('InfiniteNetwork')
+    plt.plot(range(runtime), avg_infinite_network)
+    plt.title('Average Infection Rate of Network [INFINITE]')
+    plt.show()
