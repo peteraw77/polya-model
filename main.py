@@ -98,7 +98,6 @@ if __name__ == '__main__':
     avg_infinite_node = [ x / trials for x in avg_infinite_node ]
     avg_infinite_network = [ x / trials for x in avg_infinite_network ]
 
-
     plt.figure('FiniteNode')
     plt.plot(range(runtime), avg_finite_node)
     plt.title('Infection rate for Node 0 [FINITE]')
