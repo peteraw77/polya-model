@@ -67,7 +67,7 @@ def simulation(adjacency, NodeType, runtime):
 
     return (infection_node_zero, avg_infection_rate)
 
-if __name__ == '__main__':
+def main():
     trials = 5000
     runtime = 1000
     if METHOD == '-f':
@@ -114,3 +114,6 @@ if __name__ == '__main__':
     plt.plot(range(runtime), avg_infinite_network)
     plt.title('Average Infection Rate of Network [INFINITE]')
     plt.show()
+
+if __name__ == '__main__':
+    main()
