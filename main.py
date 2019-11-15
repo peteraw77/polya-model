@@ -83,10 +83,10 @@ if __name__ == '__main__':
         avg_finite_network.append(finite_network)
         avg_infinite_node.append(infinite_node)
         avg_infinite_network.append(infinite_network)
-    avg_finite_node = avg_finite_node / trials
-    avg_finite_network = avg_finite_network / trials
-    avg_infinite_node = avg_infinite_node / trials
-    avg_infinite_network = avg_infinite_network / trials
+    avg_finite_node = [ x / trials for x in avg_finite_node ]
+    avg_finite_network = [ x / trials for x in avg_finite_network ]
+    avg_infinite_node = [ x / trials for x in avg_infinite_node ]
+    avg_infinite_network = [ x / trials for x in avg_infinite_network ]
 
 
     plt.figure('FiniteNode')
