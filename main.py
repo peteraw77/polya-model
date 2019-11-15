@@ -4,6 +4,11 @@ from polya import FiniteNode, InfiniteNode, network_infection_rate
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
 from tqdm import tqdm
+import sys
+
+METHOD = sys.argv[1]
+PARAMETER = sys.argv[2]
+
 # hello
 def construct_barabasi_graph(size):
     # consider using variable size for number of connections
@@ -65,10 +70,14 @@ def simulation(adjacency, NodeType, runtime):
 if __name__ == '__main__':
     trials = 5000
     runtime = 1000
-    #finite_adj_matrix = load_graph('BA_Adj.mat')
-    #infinite_adj_matrix = load_graph('BA_Adj.mat')
-    finite_adj_matrix = construct_barabasi_graph(10)
-    infinite_adj_matrix = construct_barabasi_graph(10)
+    if METHOD == '-f':
+        finite_adj_matrix = load_graph(PARAMETER)
+        infinite_adj_matrix = load_graph(PARAMETER)
+    elif METHOD == '-g':
+        finite_adj_matrix = construct_barabasi_graph(int(PARAMETER))
+        infinite_adj_matrix = construct_barabasi_graph(int(PARAMETER))
+    else:
+        raise ValueError('Program expects method flag')
 
     avg_finite_node = [0 for x in range(runtime)]
     avg_finite_network = [0 for x in range(runtime)]
