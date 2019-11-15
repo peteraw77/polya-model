@@ -50,9 +50,9 @@ def simulation(graph, runtime):
     avg_infection_rate = []
     for t in range(runtime):
         # update infection rates
-        node_zero_red, node_zero_black = graph[0].construct_super_urn(nodes)
+        node_zero_red, node_zero_black = graph[0].construct_super_urn(graph)
         infection_node_zero.append(node_zero_red / (node_zero_red + node_zero_black))
-        avg_infection_rate.append(network_infection_rate(nodes))
+        avg_infection_rate.append(network_infection_rate(graph))
 
         # remove values that are out of network's memory
         for node in graph:
@@ -61,7 +61,7 @@ def simulation(graph, runtime):
         # draw from urns
         new_graph = deepcopy(graph)
         for node in new_graph:
-            node.draw(nodes)
+            node.draw(graph)
         # don't update any nodes until all draws have been made
         graph = new_graph
 
