@@ -65,25 +65,25 @@ def simulation(adjacency, NodeType, runtime):
 if __name__ == '__main__':
     trials = 5000
     runtime = 1000
-    finite_adj_matrix = load_graph('BA_Adj.mat')
-    infinite_adj_matrix = load_graph('BA_Adj.mat')
-    #finite_adj_matrix = construct_barabasi_graph(10)
-    #infinite_adj_matrix = construct_barabasi_graph(10)
+    #finite_adj_matrix = load_graph('BA_Adj.mat')
+    #infinite_adj_matrix = load_graph('BA_Adj.mat')
+    finite_adj_matrix = construct_barabasi_graph(10)
+    infinite_adj_matrix = construct_barabasi_graph(10)
 
-    avg_finite_node = []
-    avg_finite_network = []
-    avg_infinite_node = []
-    avg_infinite_network = []
+    avg_finite_node = [0 for x in range(runtime)]
+    avg_finite_network = [0 for x in range(runtime)]
+    avg_infinite_node = [0 for x in range(runtime)]
+    avg_infinite_network = [0 for x in range(runtime)]
 
     print('Simulating...')
     for x in tqdm(range(trials)):
         finite_node,finite_network = simulation(finite_adj_matrix, FiniteNode, runtime)
         infinite_node,infinite_network = simulation(infinite_adj_matrix, InfiniteNode, runtime)
 
-        avg_finite_node.append(finite_node)
-        avg_finite_network.append(finite_network)
-        avg_infinite_node.append(infinite_node)
-        avg_infinite_network.append(infinite_network)
+        avg_finite_node = [ x + y for x,y in zip(avg_finite_node,finite_node) ]
+        avg_finite_network = [ x + y for x,y in zip(avg_finite_network,finite_network) ]
+        avg_infinite_node = [ x + y for x,y in zip(avg_infinite_node,infinite_node) ]
+        avg_infinite_network = [ x + y for x,y in zip(avg_infinite_network,infinite_network) ]
     avg_finite_node = [ x / trials for x in avg_finite_node ]
     avg_finite_network = [ x / trials for x in avg_finite_network ]
     avg_infinite_node = [ x / trials for x in avg_infinite_node ]
