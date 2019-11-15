@@ -75,7 +75,7 @@ if __name__ == '__main__':
     avg_infinite_node = []
     avg_infinite_network = []
 
-    print('Starting simulation')
+    print('Simulating...')
     for x in tqdm(range(trials)):
         finite_node,finite_network = simulation(finite_adj_matrix, FiniteNode, runtime)
         infinite_node,infinite_network = simulation(infinite_adj_matrix, InfiniteNode, runtime)
