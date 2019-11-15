@@ -10,10 +10,8 @@ def construct_barabasi(size):
 
     return graph.edges
 
-# size is the number of nodes
-def simulation(NodeType, size, runtime):
-    #edges = construct_barabasi(size)
-    adjacency = loadmat('BA_Adj.mat')['A']
+def load_graph(filename, NodeType=FiniteNode):
+    adjacency = loadmat(filename)['A']
     nodes = [None for x in range(len(adjacency))]
 
     # build the node objects
@@ -24,32 +22,58 @@ def simulation(NodeType, size, runtime):
                     nodes[i] = NodeType([j])
                 else:
                     nodes[i].add_neighbor(j)
+    return nodes
 
+def generate_graph(NodeType, size):
+    edges = construct_barabasi(size)
+    nodes = [None for x in range(size)]
+
+    # build the node objects
+    for edge in edges:
+        # add connection to first node
+        if not nodes[edge[0]]:
+            nodes[edge[0]] = NodeType([edge[1]])
+        else:
+            nodes[edge[0]].add_neighbor(edge[1])
+
+        # second node
+        if not nodes[edge[1]]:
+            nodes[edge[1]] = NodeType([edge[0]])
+        else:
+            nodes[edge[1]].add_neighbor(edge[0])
+    return nodes
+
+# size is the number of nodes
+def simulation(graph, runtime):
     # run the simulation
     infection_node_zero = []
     avg_infection_rate = []
     for t in range(runtime):
         # update infection rates
-        node_zero_red, node_zero_black = nodes[0].construct_super_urn(nodes)
+        node_zero_red, node_zero_black = graph[0].construct_super_urn(nodes)
         infection_node_zero.append(node_zero_red / (node_zero_red + node_zero_black))
         avg_infection_rate.append(network_infection_rate(nodes))
 
         # remove values that are out of network's memory
-        for node in nodes:
+        for node in graph:
             node.update()
 
         # draw from urns
-        new_nodes = deepcopy(nodes)
-        for node in new_nodes:
+        new_graph = deepcopy(graph)
+        for node in new_graph:
             node.draw(nodes)
         # don't update any nodes until all draws have been made
-        nodes = new_nodes
+        graph = new_graph
 
     return (infection_node_zero, avg_infection_rate)
 
 if __name__ == '__main__':
     trials = 5000
     runtime = 1000
+    finite_graph = load_graph('BA_Adj.mat', FiniteNode)
+    infinite_graph = load_graph('BA_Adj.mat', InfiniteNode)
+    #finite_graph = generate_graph(10, FiniteNode)
+    #infinite_graph = generate_graph(10, IniniteNode)
 
     avg_finite_node = []
     avg_finite_network = []
@@ -58,8 +82,8 @@ if __name__ == '__main__':
 
     for x in range(trials):
         print('Trial number ' + str(x))
-        finite_node,finite_network = simulation(FiniteNode, 10, 1000)
-        infinite_node,infinite_network = simulation(InfiniteNode, 10, 1000)
+        finite_node,finite_network = simulation(finite_graph, runtime)
+        infinite_node,infinite_network = simulation(infinite_graph, runtime)
 
         avg_finite_node.append(finite_node)
         avg_finite_network.append(finite_network)
