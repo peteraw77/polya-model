@@ -2,33 +2,46 @@ import networkx as nx
 from copy import deepcopy
 from sis import SISNode, network_infection_rate_SIS
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+import sys
 
-def construct_barabasi(size):
-    graph = nx.barabasi_albert_graph(size, 5)
+METHOD = sys.argv[1]
+PARAMETER = sys.argv[2]
 
-    return graph.edges
+def construct_barabasi_graph(size):
+    # consider using variable size for number of connections
+    graph = nx.barabasi_albert_graph(size, 2)
+    edges = graph.edges
 
-# size is the number of nodes
-def simulation(size, runtime):
-    edges = construct_barabasi(size)
-    nodes = [None for x in range(size)]
+    # build adjacency matrix
+    adjacency = [ [0 for y in range(size)] for x in range(size) ]
+    for edge in edges:
+        adjacency[edge[0]][edge[1]] = 1
+        adjacency[edge[1]][edge[0]] = 1
+
+    return adjacency
+
+def load_graph(filename):
+    adjacency = loadmat(filename)['A']
+
+    return adjacency
+
+def build_network(adjacency):
+    nodes = [None for x in range(len(adjacency))]
 
     # build the node objects
-    for edge in edges:
-        # add connection to first node
-        if not nodes[edge[0]]:
-            nodes[edge[0]] = SISNode([edge[1]])
-        else:
-            nodes[edge[0]].add_neighbor(edge[1])
+    for i in range(len(adjacency)):
+        for j in range(len(adjacency[0])):
+            if adjacency[i][j] == 1:
+                if not nodes[i]:
+                    nodes[i] = SISNode([j])
+                else:
+                    nodes[i].add_neighbor(j)
+    return nodes
 
-        # second node
-        if not nodes[edge[1]]:
-            nodes[edge[1]] = SISNode([edge[0]])
-        else:
-            nodes[edge[1]].add_neighbor(edge[0])
+def simulation(adjacency, runtime):
+    nodes = build_network(adjacency)
 
-    # run the simulation
-    infection_node_zero = []
     avg_infection_rate = []
     for t in range(runtime):
         avg_infection_rate.append(network_infection_rate_SIS(nodes))
@@ -38,10 +51,33 @@ def simulation(size, runtime):
             node.change_prob_infection(nodes)
         nodes = new_nodes
 
+    return avg_infection_rate
+
+def main():
+    trials = 1000
+    runtime = 1000
+    if METHOD == '-f':
+        adj_matrix = load_graph(int(PARAMETER))
+    elif METHOD == '-g':
+        adj_matrix = construct_barabasi_graph(int(PARAMETER))
+    else:
+        raise ValueError('Program expects method flag')
+    
+    adj_matrix = construct_barabasi_graph(int(PARAMETER))
+
+    avg_network = [0 for x in range(runtime)]
+
+    print('Simulating...')
+    for x in tqdm(range(trials)):
+        network = simulation(adj_matrix, runtime)
+
+        avg_network = [ x + y for x,y in zip(avg_network, network) ]
+    avg_network = [ x / trials for x in avg_network ]
+
     plt.figure('Network')
-    plt.plot(range(runtime), avg_infection_rate)
+    plt.plot(range(runtime), avg_network)
     plt.title('Average Infection Rate of Network (SIS)')
-    plt.show()
+    plt.show()    
 
 if __name__ == '__main__':
-    simulation(10, 1000)
+    main()
