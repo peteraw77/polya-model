@@ -4,9 +4,13 @@ from sis import SISNode, network_infection_rate_SIS
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import sys
+import numpy
+from numpy import linalg as LA
 
 METHOD = sys.argv[1]
 PARAMETER = sys.argv[2]
+# Can be "infected", "cured", or "neutral"
+RESULT = sys.argv[3]
 
 def construct_barabasi_graph(size):
     # consider using variable size for number of connections
@@ -26,15 +30,44 @@ def load_graph(filename):
 
     return adjacency
 
+
+# Calculate initial delta/beta values based on eigenvalue of adj matrix
+def initial_params(adj_matrix):
+    # Find eigenvalues of adj matrix
+    w, v = LA.eig(adj_matrix)
+    # Convert to magnitudes
+    w = [ abs(x) for x in w ]
+    # Get maximum magnitude eigenvalue
+    max_eig = numpy.amax(w)
+
+    if RESULT == 'infected':
+        # Supposed to be delta < beta*max_eig but it's not rn
+        delta = 0.1
+        beta = 0.9
+    elif RESULT == 'cured':
+        # Supposed to be delta > beta*max_eig but it's not rn
+        delta = 0.9
+        beta = 0.1
+    elif RESULT == 'neutral':
+        delta = 0.5
+        beta = 0.5
+    else:
+        raise ValueError("Invalid RESULT flag")
+
+    return (delta, beta)
+
 def build_network(adjacency):
     nodes = [None for x in range(len(adjacency))]
+
+    # Get delta, beta values for SIS nodes
+    delta, beta = initial_params(adjacency)
 
     # build the node objects
     for i in range(len(adjacency)):
         for j in range(len(adjacency[0])):
             if adjacency[i][j] == 1:
                 if not nodes[i]:
-                    nodes[i] = SISNode([j])
+                    nodes[i] = SISNode(delta, beta, [j])
                 else:
                     nodes[i].add_neighbor(j)
     return nodes
@@ -52,7 +85,7 @@ def simulation(adjacency, runtime):
         nodes = new_nodes
 
     return avg_infection_rate
-
+    
 def main():
     trials = 1000
     runtime = 1000
