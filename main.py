@@ -3,7 +3,7 @@ from copy import deepcopy
 from polya import FiniteNode, InfiniteNode, network_infection_rate
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
-from numpy import linalg as LA
+import numpy as np
 from tqdm import tqdm
 import sys
 
@@ -33,9 +33,9 @@ def build_network(adjacency, NodeType, network_type=None):
     nodes = [None for x in range(len(adjacency))]
     if network_type:
         # calculate eigenvalues
-        w,_ = LA.eig(adjacency)
+        w,_ = np.linalg.eig(adjacency)
         w = [abs(x) for x in w]
-        max_eig = numpy.amax(w)
+        max_eig = np.amax(w)
 
         delta_red = 2
         if network_type == 'cure':
@@ -60,7 +60,7 @@ def build_network(adjacency, NodeType, network_type=None):
 
 # size is the number of nodes
 def simulation(adjacency, NodeType, runtime):
-    nodes = build_network(adjacency, NodeType)
+    nodes = build_network(adjacency, NodeType, 'cure')
 
     # run the simulation
     avg_infection_rate = []
