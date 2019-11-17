@@ -51,7 +51,7 @@ class FiniteNode:
         self.black_balls = black_balls
         self.additional_red = [0 for x in range(memory)]
         self.additional_black = [0 for x in range(memory)]
-        self.delta_black = delta_red
+        self.delta_red = delta_red
         self.delta_black = delta_black
 
     def update(self):
