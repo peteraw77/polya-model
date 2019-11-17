@@ -14,7 +14,7 @@ RESULT = sys.argv[3]
 
 def construct_barabasi_graph(size):
     # consider using variable size for number of connections
-    graph = nx.barabasi_albert_graph(size, 2)
+    graph = nx.barabasi_albert_graph(size, 5)
     edges = graph.edges
 
     # build adjacency matrix
@@ -41,13 +41,13 @@ def initial_params(adj_matrix):
     max_eig = numpy.amax(w)
 
     if RESULT == 'infected':
-        # Supposed to be delta < beta*max_eig but it's not rn
-        delta = 0.1
-        beta = 0.9
+        # This makes delta/beta = max_eig/10
+        delta = max_eig / (10 + max_eig)
+        beta = 10 / (10 + max_eig)
     elif RESULT == 'cured':
-        # Supposed to be delta > beta*max_eig but it's not rn
-        delta = 0.9
-        beta = 0.1
+        # delta/beta = 1.01*max_eig
+        delta = (1.01 * max_eig) / (1.01*max_eig + 1)
+        beta = 1 / (1.01*max_eig +1)
     elif RESULT == 'neutral':
         delta = 0.5
         beta = 0.5
