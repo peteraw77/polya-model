@@ -2,11 +2,12 @@ import random
 random.seed()
 
 class InfiniteNode:
-    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, delta=1):
+    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, delta_red=1, delta_black=1):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
         self.black_balls = black_balls
-        self.delta = delta
+        self.delta_red = delta_red
+        self.delta_black = delta_black
 
     def update(self):
         # do nothing!
@@ -39,18 +40,19 @@ class InfiniteNode:
         # draw
         red_prob = total_red / (total_red + total_black)
         if (random.random() < red_prob):
-            self.red_balls = self.red_balls + self.delta
+            self.red_balls = self.red_balls + self.delta_red
         else:
-            self.black_balls = self.black_balls + self.delta
+            self.black_balls = self.black_balls + self.delta_black
 
 class FiniteNode:
-    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=3, delta=1):
+    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=3, delta_red=1, delta_black=1):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
         self.black_balls = black_balls
         self.additional_red = [0 for x in range(memory)]
         self.additional_black = [0 for x in range(memory)]
-        self.delta = delta
+        self.delta_black = delta_red
+        self.delta_black = delta_black
 
     def update(self):
         self.red_balls = self.red_balls - self.additional_red.pop(0)
@@ -77,13 +79,13 @@ class FiniteNode:
         red_prob = total_red / (total_red + total_black)
         # should this be <= or < ?
         if (random.random() < red_prob):
-            self.red_balls = self.red_balls + self.delta
-            self.additional_red.append(self.delta)
+            self.red_balls = self.red_balls + self.delta_red
+            self.additional_red.append(self.delta_red)
             self.additional_black.append(0)
             return 1
         else:
-            self.black_balls = self.black_balls + self.delta
-            self.additional_black.append(self.delta)
+            self.black_balls = self.black_balls + self.delta_black
+            self.additional_black.append(self.delta_black)
             self.additional_red.append(0)
             return 0
 

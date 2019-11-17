@@ -3,6 +3,7 @@ from copy import deepcopy
 from polya import FiniteNode, InfiniteNode, network_infection_rate
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
+from numpy import linalg as LA
 from tqdm import tqdm
 import sys
 
@@ -28,15 +29,31 @@ def load_graph(filename):
 
     return adjacency
 
-def build_network(adjacency, NodeType):
+def build_network(adjacency, NodeType, network_type=None):
     nodes = [None for x in range(len(adjacency))]
+    if network_type:
+        # calculate eigenvalues
+        w,_ = LA.eig(adjacency)
+        w = [abs(x) for x in w]
+        max_eig = numpy.amax(w)
+
+        delta_red = 2
+        if network_type == 'cure':
+            delta_black = 1.01 * max_eig * delta_red
+        elif network_type == 'infect':
+            delta_black = max_eig / 10 * delta_red
+        else:
+            raise ValueError("Network type must be 'cure' or 'infect'")
+    else:
+        delta_red = 1
+        delta_black = 1
 
     # build the node objects
     for i in range(len(adjacency)):
         for j in range(len(adjacency[0])):
             if adjacency[i][j] == 1:
                 if not nodes[i]:
-                    nodes[i] = NodeType([j])
+                    nodes[i] = NodeType([j], delta_red, delta_black)
                 else:
                     nodes[i].add_neighbor(j)
     return nodes
