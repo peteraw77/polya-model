@@ -46,12 +46,10 @@ def simulation(adjacency, NodeType, runtime):
     nodes = build_network(adjacency, NodeType)
 
     # run the simulation
-    infection_node_zero = []
     avg_infection_rate = []
     for t in range(runtime):
         # update infection rates
         node_zero_red, node_zero_black = nodes[0].construct_super_urn(nodes)
-        infection_node_zero.append(node_zero_red / (node_zero_red + node_zero_black))
         avg_infection_rate.append(network_infection_rate(nodes))
 
         # remove values that are out of network's memory
@@ -65,7 +63,7 @@ def simulation(adjacency, NodeType, runtime):
         # don't update any nodes until all draws have been made
         nodes = new_nodes
 
-    return (infection_node_zero, avg_infection_rate)
+    return avg_infection_rate
 
 def main():
     trials = 5000
@@ -79,32 +77,18 @@ def main():
     else:
         raise ValueError('Program expects method flag')
 
-    avg_finite_node = [0 for x in range(runtime)]
     avg_finite_network = [0 for x in range(runtime)]
-    avg_infinite_node = [0 for x in range(runtime)]
     avg_infinite_network = [0 for x in range(runtime)]
 
     print('Simulating...')
     for x in tqdm(range(trials)):
-        finite_node,finite_network = simulation(finite_adj_matrix, FiniteNode, runtime)
-        infinite_node,infinite_network = simulation(infinite_adj_matrix, InfiniteNode, runtime)
+        finite_network = simulation(finite_adj_matrix, FiniteNode, runtime)
+        infinite_network = simulation(infinite_adj_matrix, InfiniteNode, runtime)
 
-        avg_finite_node = [ x + y for x,y in zip(avg_finite_node,finite_node) ]
         avg_finite_network = [ x + y for x,y in zip(avg_finite_network,finite_network) ]
-        avg_infinite_node = [ x + y for x,y in zip(avg_infinite_node,infinite_node) ]
         avg_infinite_network = [ x + y for x,y in zip(avg_infinite_network,infinite_network) ]
-    avg_finite_node = [ x / trials for x in avg_finite_node ]
     avg_finite_network = [ x / trials for x in avg_finite_network ]
-    avg_infinite_node = [ x / trials for x in avg_infinite_node ]
     avg_infinite_network = [ x / trials for x in avg_infinite_network ]
-
-    plt.figure('FiniteNode')
-    plt.plot(range(runtime), avg_finite_node)
-    plt.title('Infection rate for Node 0 [FINITE]')
-
-    plt.figure('InfiniteNode')
-    plt.plot(range(runtime), avg_infinite_node)
-    plt.title('Infection rate for Node 0 [INFINITE]')
 
     plt.figure('FiniteNetwork')
     plt.plot(range(runtime), avg_finite_network)
