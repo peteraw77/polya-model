@@ -53,7 +53,7 @@ def build_network(adjacency, NodeType, network_type=None):
         for j in range(len(adjacency[0])):
             if adjacency[i][j] == 1:
                 if not nodes[i]:
-                    nodes[i] = NodeType([j], delta_red, delta_black)
+                    nodes[i] = NodeType([j], delta_red=delta_red, delta_black=delta_black)
                 else:
                     nodes[i].add_neighbor(j)
     return nodes
