@@ -39,7 +39,7 @@ class InfiniteNode:
             self.black_balls = self.black_balls + self.delta_black
 
 class FiniteNode:
-    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=3, delta_red=1, delta_black=1):
+    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=50, delta_red=1, delta_black=1):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
         self.black_balls = black_balls
