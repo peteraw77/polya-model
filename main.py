@@ -66,7 +66,6 @@ def simulation(adjacency, NodeType, runtime):
     avg_infection_rate = []
     for t in range(runtime):
         # update infection rates
-        node_zero_red, node_zero_black = nodes[0].construct_super_urn(nodes)
         avg_infection_rate.append(network_infection_rate(nodes))
 
         # remove values that are out of network's memory
