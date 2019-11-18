@@ -29,13 +29,7 @@ class InfiniteNode:
 
     def draw(self, nodes):
         # construct super urn
-        total_red = self.red_balls
-        total_black = self.black_balls
-
-        for address in self.neighborhood:
-            node = nodes[address]
-            total_red = total_red + node.red_balls
-            total_black = total_black + node.black_balls
+        total_red,total_black = self.construct_super_urn(nodes)
 
         # draw
         red_prob = total_red / (total_red + total_black)
