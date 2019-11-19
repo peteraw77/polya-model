@@ -2,7 +2,8 @@ import networkx as nx
 from copy import deepcopy
 from polya import FiniteNode, InfiniteNode, network_infection_rate
 import matplotlib.pyplot as plt
-from scipy.io import loadmat
+from scipy.io import loadmat, savemat
+from datetime import date
 import numpy as np
 from tqdm import tqdm
 import sys
@@ -21,6 +22,9 @@ def construct_barabasi_graph(size):
     for edge in edges:
         adjacency[edge[0]][edge[1]] = 1
         adjacency[edge[1]][edge[0]] = 1
+
+    # save matrix
+    savemat('Barabasi_' + str(size) + '_' + str(date.today()) + '.mat', {'A': adjacency})
 
     return adjacency
 
