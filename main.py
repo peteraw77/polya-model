@@ -35,13 +35,14 @@ def load_graph(filename):
 
 def build_network(adjacency, NodeType, network_type=None):
     nodes = [None for x in range(len(adjacency))]
+
+    delta_red = 2
     if network_type:
         # calculate eigenvalues
         w,_ = np.linalg.eig(adjacency)
         w = [abs(x) for x in w]
         max_eig = np.amax(w)
 
-        delta_red = 2
         if network_type == 'cure':
             delta_black = 1.01 * max_eig * delta_red
         elif network_type == 'infect':
@@ -49,8 +50,7 @@ def build_network(adjacency, NodeType, network_type=None):
         else:
             raise ValueError("Network type must be 'cure' or 'infect'")
     else:
-        delta_red = 1
-        delta_black = 1
+        delta_black = 2
 
     # build the node objects
     for i in range(len(adjacency)):
