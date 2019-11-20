@@ -85,7 +85,7 @@ def simulation(adjacency, runtime):
         nodes = new_nodes
 
     return avg_infection_rate
-    
+
 def main():
     trials = 1000
     runtime = 1000
@@ -95,7 +95,7 @@ def main():
         adj_matrix = construct_barabasi_graph(int(PARAMETER))
     else:
         raise ValueError('Program expects method flag')
-    
+
     adj_matrix = construct_barabasi_graph(int(PARAMETER))
 
     avg_network = [0 for x in range(runtime)]
@@ -110,7 +110,7 @@ def main():
     plt.figure('Network')
     plt.plot(range(runtime), avg_network)
     plt.title('Average Infection Rate of Network (SIS)')
-    plt.show()    
+    plt.show()
 
 if __name__ == '__main__':
     main()
