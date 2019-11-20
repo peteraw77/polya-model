@@ -32,7 +32,7 @@ def load_graph(filename):
 
 
 # Calculate initial delta/beta values based on eigenvalue of adj matrix
-def initial_params(adj_matrix):
+def initial_params(adj_matrix, result):
     # Find eigenvalues of adj matrix
     w, v = LA.eig(adj_matrix)
     # Convert to magnitudes
@@ -40,15 +40,15 @@ def initial_params(adj_matrix):
     # Get maximum magnitude eigenvalue
     max_eig = numpy.amax(w)
 
-    if RESULT == 'infected':
+    if result == 'infected':
         # This makes delta/beta = max_eig/10
         delta = max_eig / (10 + max_eig)
         beta = 10 / (10 + max_eig)
-    elif RESULT == 'cured':
+    elif result == 'cured':
         # delta/beta = 1.01*max_eig
         delta = (1.01 * max_eig) / (1.01*max_eig + 1)
         beta = 1 / (1.01*max_eig +1)
-    elif RESULT == 'neutral':
+    elif result == 'neutral':
         delta = 0.5
         beta = 0.5
     else:
@@ -56,11 +56,11 @@ def initial_params(adj_matrix):
 
     return (delta, beta)
 
-def build_network(adjacency):
+def build_network(adjacency, result):
     nodes = [None for x in range(len(adjacency))]
 
     # Get delta, beta values for SIS nodes
-    delta, beta = initial_params(adjacency)
+    delta, beta = initial_params(adjacency, result)
 
     # build the node objects
     for i in range(len(adjacency)):
@@ -72,8 +72,8 @@ def build_network(adjacency):
                     nodes[i].add_neighbor(j)
     return nodes
 
-def simulation(adjacency, runtime):
-    nodes = build_network(adjacency)
+def simulation(adjacency, runtime, result):
+    nodes = build_network(adjacency, result)
 
     avg_infection_rate = []
     for t in range(runtime):
@@ -102,7 +102,7 @@ def main():
 
     print('Simulating...')
     for x in tqdm(range(trials)):
-        network = simulation(adj_matrix, runtime)
+        network = simulation(adj_matrix, runtime, RESULT)
 
         avg_network = [ x + y for x,y in zip(avg_network, network) ]
     avg_network = [ x / trials for x in avg_network ]
