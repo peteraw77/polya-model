@@ -87,7 +87,7 @@ def simulation(adjacency, runtime, result):
     return avg_infection_rate
 
 def main():
-    trials = 1000
+    trials = 5000
     runtime = 1000
     if METHOD == '-f':
         adj_matrix = load_graph(int(PARAMETER))

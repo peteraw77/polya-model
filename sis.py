@@ -8,7 +8,7 @@ class SISNode:
         self.delta = delta
         self.beta = beta
         # Initial prob same as initial ratio of red balls in urns
-        self.prob_infection = self.delta / (self.delta + self.beta)
+        self.prob_infection = 0.5
 
     def add_neighbor(self, neighbor):
         self.neighborhood.append(neighbor)
