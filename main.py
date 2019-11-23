@@ -1,6 +1,7 @@
 import networkx as nx
 from copy import deepcopy
 from polya import FiniteNode, InfiniteNode, network_infection_rate
+from sis_sim import simulation as sis_simulation
 import matplotlib.pyplot as plt
 from scipy.io import loadmat, savemat
 from datetime import date
@@ -10,6 +11,7 @@ import sys
 
 METHOD = sys.argv[1]
 PARAMETER = sys.argv[2]
+RESULT = sys.argv[3]
 
 # hello
 def construct_barabasi_graph(size):
@@ -33,24 +35,24 @@ def load_graph(filename):
 
     return adjacency
 
-def build_network(adjacency, NodeType, network_type=None):
+def build_network(adjacency, NodeType, result):
     nodes = [None for x in range(len(adjacency))]
 
     delta_red = 2
-    if network_type:
+    if result == 'neutral':
+        delta_black = 2
+    else:
         # calculate eigenvalues
         w,_ = np.linalg.eig(adjacency)
         w = [abs(x) for x in w]
         max_eig = np.amax(w)
 
-        if network_type == 'cure':
+        if result == 'cured':
             delta_black = 1.01 * max_eig * delta_red
-        elif network_type == 'infect':
+        elif result == 'infected':
             delta_black = max_eig / 10 * delta_red
         else:
-            raise ValueError("Network type must be 'cure' or 'infect'")
-    else:
-        delta_black = 2
+            raise ValueError("Network type must be 'cured', 'infected', or 'neutral'")
 
     # build the node objects
     for i in range(len(adjacency)):
@@ -63,8 +65,8 @@ def build_network(adjacency, NodeType, network_type=None):
     return nodes
 
 # size is the number of nodes
-def simulation(adjacency, NodeType, runtime):
-    nodes = build_network(adjacency, NodeType, 'cure')
+def simulation(adjacency, NodeType, runtime, result):
+    nodes = build_network(adjacency, NodeType, result)
 
     # run the simulation
     avg_infection_rate = []
@@ -89,34 +91,34 @@ def main():
     trials = 5000
     runtime = 1000
     if METHOD == '-f':
-        finite_adj_matrix = load_graph(PARAMETER)
-        infinite_adj_matrix = load_graph(PARAMETER)
+        adj_matrix = load_graph(PARAMETER)
     elif METHOD == '-g':
-        finite_adj_matrix = construct_barabasi_graph(int(PARAMETER))
-        infinite_adj_matrix = construct_barabasi_graph(int(PARAMETER))
+        adj_matrix = construct_barabasi_graph(int(PARAMETER))
     else:
         raise ValueError('Program expects method flag')
 
     avg_finite_network = [0 for x in range(runtime)]
     avg_infinite_network = [0 for x in range(runtime)]
+    avg_sis_network = [0 for x in range(runtime)]
 
     print('Simulating...')
     for x in tqdm(range(trials)):
-        finite_network = simulation(finite_adj_matrix, FiniteNode, runtime)
-        infinite_network = simulation(infinite_adj_matrix, InfiniteNode, runtime)
+        finite_network = simulation(adj_matrix, FiniteNode, runtime, RESULT)
+        infinite_network = simulation(adj_matrix, InfiniteNode, runtime, RESULT)
+        sis_network = sis_simulation(adj_matrix, runtime, RESULT)
 
         avg_finite_network = [ x + y for x,y in zip(avg_finite_network,finite_network) ]
         avg_infinite_network = [ x + y for x,y in zip(avg_infinite_network,infinite_network) ]
+        avg_sis_network = [ x + y for x,y in zip(avg_sis_network,sis_network) ]
     avg_finite_network = [ x / trials for x in avg_finite_network ]
     avg_infinite_network = [ x / trials for x in avg_infinite_network ]
+    avg_sis_network = [ x / trials for x in avg_sis_network ]
 
-    plt.figure('FiniteNetwork')
-    plt.plot(range(runtime), avg_finite_network)
-    plt.title('Average Infection Rate of Network [FINITE]')
-
-    plt.figure('InfiniteNetwork')
-    plt.plot(range(runtime), avg_infinite_network)
-    plt.title('Average Infection Rate of Network [INFINITE]')
+    plt.figure('SuperimposedInfectionRates')
+    plt.plot(range(runtime), avg_finite_network, 'r-', label='Memory 50')
+    plt.plot(range(runtime), avg_infinite_network, 'b-', label='Infinite Memory')
+    plt.plot(range(runtime), avg_sis_network, 'k-', label='SIS')
+    plt.legend()
     plt.show()
 
 if __name__ == '__main__':
