@@ -31,7 +31,7 @@ def build_network(adjacency):
         if TYPE == 'closeness':
             delta_black.append(budget*centralities[i] / sum(centralities.values()))
         elif TYPE == 'degree':
-            delta_black.append(budget*degrees[i] / sum(degrees.values()))
+            delta_black.append(budget*degrees[i] / sum(degrees))
 
         elif TYPE == 'exposure':
         # updates at every step during simulation, just initialize to initial proportion in superurns
