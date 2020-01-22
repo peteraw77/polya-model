@@ -34,16 +34,15 @@ def build_network(adjacency):
             delta_black.append(budget*degrees[i] / sum(degrees))
 
         elif TYPE == 'exposure':
-        # updates at every step during simulation, just initialize to initial proportion in superurns
+        # updates at every step during simulation, just initialize to initial proportion in superurns so it works, this won't be used
             delta_black.append(budget*0.5)
         elif TYPE == 'combo':
             # Combine closeness and degree
             # Find sum of products for denominator
-            product = 0
+            sop = 0
             for j in range(len(nodes)):
-                for k in range(j+1,len(nodes)):
-                    product = product + centralities[j]*degrees[k]
-            delta_black.append(budget*centralities[i]*degrees[i] / product)
+                sop = sop + centralities[j]*degrees[j]
+            delta_black.append(budget*centralities[i]*degrees[i] / sop)
             
 
     # build the node objects
@@ -64,14 +63,16 @@ def simulation(adjacency, runtime):
 
     # run the simulation
     avg_infection_rate = []
+    
     for t in range(runtime):
         
-        # Create array of network exposure rates for next time step (if necessary)
+        # Create array of network exposure rates for next time step (if exposure being used in strategy)
         if TYPE == 'exposure':
             prev_net_exp = []
             for node in nodes:
                 total_red, total_black = node.construct_super_urn(nodes)
                 prev_net_exp.append(total_red / (total_black + total_black))
+                
         # update infection rates
         avg_infection_rate.append(network_infection_rate(nodes))
 
