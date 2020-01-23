@@ -115,7 +115,7 @@ def main():
     avg_sis_network = [ x / trials for x in avg_sis_network ]
 
     plt.figure('SuperimposedInfectionRates')
-    plt.plot(range(runtime), avg_finite_network, 'r-', label='Memory 50')
+    plt.plot(range(runtime), avg_finite_network, 'r-', label='Memory 12')
     plt.plot(range(runtime), avg_infinite_network, 'b-', label='Infinite Memory')
     plt.plot(range(runtime), avg_sis_network, 'k-', label='SIS')
     plt.legend()
