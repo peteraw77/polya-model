@@ -10,41 +10,23 @@ import sys
 
 METHOD = sys.argv[1]
 PARAMETER = sys.argv[2]
-# Either 'closeness', 'degree', 'exposure', or 'combo'
+# Either 'closeness', 'degree', 'exposure', 'centrality', or 'all'
 TYPE = sys.argv[3]
 
 def build_network(adjacency):
     nodes = [None for x in range(len(adjacency))]
-    graph = nx.from_numpy_matrix(adjacency)
-    centralities = nx.closeness_centrality(graph)
-    #format degrees list to be how i want
-    degrees = []
-    for i in range(graph.number_of_nodes()):
-        degrees.append(graph.degree[i])
 
     delta_red = 2
-    budget = delta_red*len(adjacency)
 
-    # Create array of different delta_black for each node
-    delta_black = []
-    for i in range(len(adjacency)):
-        if TYPE == 'closeness':
-            delta_black.append(budget*centralities[i] / sum(centralities.values()))
-        elif TYPE == 'degree':
-            delta_black.append(budget*degrees[i] / sum(degrees))
-
-        elif TYPE == 'exposure':
-        # updates at every step during simulation, just initialize to initial proportion in superurns so it works, this won't be used
-            delta_black.append(budget*0.5)
-        elif TYPE == 'combo':
-            # Combine closeness and degree
-            # Find sum of products for denominator
-            sop = 0
-            for j in range(len(nodes)):
-                sop = sop + centralities[j]*degrees[j]
-            delta_black.append(budget*centralities[i]*degrees[i] / sop)
+    # Create array of different delta_black for each node first if not being updated at every time step
+    if TYPE != 'exposure' and TYPE != 'all':
+        delta_black = get_delta_black(nodes, adjacency, delta_red)
+    else:
+        # Will be updated at each time step during simulation, just initialize array so it works, not used
+        delta_black = []
+        for i in range(len(adjacency)):
+            delta_black.append(0.5)
             
-
     # build the node objects
     for i in range(len(adjacency)):
         for j in range(len(adjacency[0])):
@@ -54,24 +36,70 @@ def build_network(adjacency):
                 else:
                     nodes[i].add_neighbor(j)
     return nodes
+
+def get_delta_black(nodes, adjacency, delta_red):
+    graph = nx.from_numpy_matrix(adjacency)
+    centralities = nx.closeness_centrality(graph)
+    #format degrees list to be how i want
+    degrees = []
+    for i in range(graph.number_of_nodes()):
+        degrees.append(graph.degree[i])
+
+     # Budget for curing is same as total number of delta_red added to network
+    budget = delta_red*len(nodes)
+
+    delta_black = []
+    
+    if TYPE == 'exposure':
+        prev_net_exp = []
+        for node in nodes:
+            total_red, total_black = node.construct_super_urn(nodes)
+            prev_net_exp.append(total_red / (total_black + total_black))
+        for i in range(len(nodes)):
+            delta_black.append(budget*prev_net_exp[i] / sum(prev_net_exp))
+
+    elif TYPE == 'closeness':
+        for i in range(len(nodes)):
+            delta_black.append(budget*centralities[i] / sum(centralities.values()))
+    elif TYPE == 'degree':
+        for i in range(len(nodes)):
+            delta_black.append(budget*degrees[i] / sum(degrees))
+            
+    elif TYPE == 'centrality':
+        # Combine closeness and degree
+        for i in range(len(nodes)):
+            # Find sum of products for denominator
+            sop = 0
+            for j in range(len(nodes)):
+                sop = sop + centralities[j]*degrees[j]
+            delta_black.append(budget*centralities[i]*degrees[i] / sop)
+
+    elif TYPE == 'all':
+        for i in range(len(nodes)):
+            prev_net_exp = []
+            for node in nodes:
+                total_red, total_black = node.construct_super_urn(nodes)
+                prev_net_exp.append(total_red / (total_black + total_black))
+            sop = 0
+            for j in range(len(nodes)):
+                sop = sop + centralities[j]*degrees[j]*prev_net_exp[j]
+            delta_black.append(budget*centralities[i]*degrees[i]*prev_net_exp[i] / sop)
+
+    return delta_black
+            
     
 
 def simulation(adjacency, runtime):
     nodes = build_network(adjacency)
-    # Budget for curing is same as total number of delta_red added to network
-    budget = nodes[0].delta_red*len(nodes)
 
     # run the simulation
     avg_infection_rate = []
     
     for t in range(runtime):
         
-        # Create array of network exposure rates for next time step (if exposure being used in strategy)
-        if TYPE == 'exposure':
-            prev_net_exp = []
-            for node in nodes:
-                total_red, total_black = node.construct_super_urn(nodes)
-                prev_net_exp.append(total_red / (total_black + total_black))
+        # Get array of delta_black if update is required at each time step
+        if TYPE == 'exposure' or TYPE == 'all':
+            delta_black = get_delta_black(nodes, adjacency, nodes[0].delta_red*len(nodes))
                 
         # update infection rates
         avg_infection_rate.append(network_infection_rate(nodes))
@@ -83,8 +111,8 @@ def simulation(adjacency, runtime):
         # draw from urns, update delta_black using network exposure if necessary
         new_nodes = deepcopy(nodes)
         for i in range(len(new_nodes)):
-            if TYPE == 'exposure':
-                new_nodes[i].delta_black = (budget*prev_net_exp[i])/sum(prev_net_exp)
+            if TYPE == 'exposure' or TYPE == 'all':
+                new_nodes[i].delta_black = delta_black[i]
             new_nodes[i].draw(nodes)
         # don't update any nodes until all draws have been made
         nodes = new_nodes
@@ -109,7 +137,7 @@ def main():
                           
     avg_finite_network = [ x / trials for x in avg_finite_network ]
 
-    plt.figure('Centrality Heuristic')
+    plt.figure('Heuristic')
     plt.plot(range(runtime), avg_finite_network, 'r-', label='Memory 50')
 
     plt.legend()
