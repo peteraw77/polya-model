@@ -87,7 +87,7 @@ def simulation(adjacency, NodeType, runtime, result):
 
     return avg_infection_rate
 
-def gradientfunction(nodes, curing, last_nodes)
+def gradientfunction(nodes, curing, last_nodes):
     f = 0
     for i in range(len(nodes)):
         red_sum = sum(nodes[i].additional_red)
@@ -110,7 +110,7 @@ def gradientfunction(nodes, curing, last_nodes)
             sigma = sigma + curing[j]*(1-neighbor_exp)
 
         f = f + c / (d + sigma)
-     f = f / len(nodes)
+    f = f / len(nodes)
 
     return f
         
