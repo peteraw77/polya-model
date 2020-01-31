@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import loadmat, savemat
 import sys
+from network_exposure_fcn import network_exposure
 
 METHOD = sys.argv[1]
 PARAMETER = sys.argv[2]
@@ -51,10 +52,7 @@ def get_delta_black(nodes, adjacency, delta_red):
     delta_black = []
     
     if TYPE == 'exposure':
-        prev_net_exp = []
-        for node in nodes:
-            total_red, total_black = node.construct_super_urn(nodes)
-            prev_net_exp.append(total_red / (total_black + total_black))
+        prev_net_exp = network_exposure(nodes)
         for i in range(len(nodes)):
             delta_black.append(budget*prev_net_exp[i] / sum(prev_net_exp))
 
@@ -76,10 +74,7 @@ def get_delta_black(nodes, adjacency, delta_red):
 
     elif TYPE == 'all':
         for i in range(len(nodes)):
-            prev_net_exp = []
-            for node in nodes:
-                total_red, total_black = node.construct_super_urn(nodes)
-                prev_net_exp.append(total_red / (total_black + total_black))
+            prev_net_exp = network_exposure(nodes)
             sop = 0
             for j in range(len(nodes)):
                 sop = sop + centralities[j]*degrees[j]*prev_net_exp[j]
