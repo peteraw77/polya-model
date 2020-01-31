@@ -100,18 +100,18 @@ def gradient_function(nodes, curing, last_nodes):
         red_sum = sum(nodes[i].additional_red)
         black_sum = sum(nodes[i].additional_black)
         for neighbor in nodes[i].neighborhood:
-            red_sum = red_sum + sum(neighbor.additional_red)
-            black_sum = black_sum + sum(neighbor.additional_black)
+            red_sum = red_sum + sum(nodes[neighbor].additional_red)
+            black_sum = black_sum + sum(nodes[neighbor].additional_black)
 
         total_red, total_black = nodes[i].construct_super_urn(nodes)
         total_red_prev, total_black_prev = last_nodes[i].construct_super_urn(last_nodes)
-        c = total_red + node.delta_red * (total_red_prev / (total_black_prev + total_red_prev) ) + red_sum
+        c = total_red + nodes[i].delta_red * (total_red_prev / (total_black_prev + total_red_prev) ) + red_sum
         d = c + total_black + black_sum
 
         sigma = curing[i]*(1 - (total_red_prev / (total_black_prev + total_red_prev) ))
 
         for j in range(len(last_nodes[i].neighborhood)):
-            n_red, n_black = last_nodes[i].neighborhood[j].construct_super_urn(last_nodes)
+            n_red, n_black = last_nodes[last_nodes[i].neighborhood[j]].construct_super_urn(last_nodes)
             neighbor_exp = (n_red / (n_red + n_black))
 
             sigma = sigma + curing[j]*(1-neighbor_exp)
