@@ -1,13 +1,16 @@
 import networkx as nx
 from copy import deepcopy
-from polya import FiniteNode, InfiniteNode, network_infection_rate
+from polya import FiniteNode, InfiniteNode, network_infection_rate, gradient_function
 from sis_sim import simulation as sis_simulation
 import matplotlib.pyplot as plt
 from scipy.io import loadmat, savemat
+import numpy as np
 from datetime import date
 import numpy as np
 from tqdm import tqdm
 import sys
+from sympy import derive_by_array
+from sympy.abc import x,y
 
 METHOD = sys.argv[1]
 PARAMETER = sys.argv[2]
@@ -16,7 +19,8 @@ RESULT = sys.argv[3]
 # hello
 def construct_barabasi_graph(size):
     # consider using variable size for number of connections
-    graph = nx.barabasi_albert_graph(size, 5)
+    #graph = nx.barabasi_albert_graph(size, 5)
+    graph = nx.barabasi_albert_graph(size, 1)
     edges = graph.edges
 
     # build adjacency matrix
@@ -64,6 +68,36 @@ def build_network(adjacency, NodeType, result):
                     nodes[i].add_neighbor(j)
     return nodes
 
+def distribute_curing(nodes, last_nodes, budget):
+    # get component derivatives of f
+    partials = derive_by_array(gradient_function(nodes, [x, y], last_nodes), [x, y])
+
+    # identify the steepest descent
+    # substitute the current values of x1,x2
+    descents = [float(partial.subs([(x, nodes[0].delta_black), (y, nodes[1].delta_black)])) \
+            for partial in partials]
+
+    # find the deepest descent
+    index = descents.index(sorted(descents)[0])
+
+    # construct curing distribution
+    distribution = [0 for x in range(len(nodes))]
+    distribution[index] = budget
+
+    # limit minimization
+    alphas = []
+    for i in range(1000):
+        alphas.append(gradient_function(nodes, [nodes[0].delta_black + i * \
+            (distribution[0] - nodes[0].delta_black), nodes[1].delta_black + \
+            i * 0.001 * (distribution[1] - nodes[1].delta_black)], last_nodes))
+
+    alpha_k = sorted(alphas)[0]
+
+    return [nodes[0].delta_black + alpha_k * \
+            (distribution[0] - nodes[0].delta_black), nodes[1].delta_black + \
+            alpha_k * (distribution[1] - nodes[1].delta_black)]
+
+
 # size is the number of nodes
 def simulation(adjacency, NodeType, runtime, result):
     nodes = build_network(adjacency, NodeType, result)
@@ -83,38 +117,12 @@ def simulation(adjacency, NodeType, runtime, result):
         for node in new_nodes:
             node.draw(nodes)
         # don't update any nodes until all draws have been made
+        curing_distribution = distribute_curing(new_nodes, nodes, 4)
         nodes = new_nodes
+        for i in range(len(curing_distribution)):
+            nodes[i].delta_black = curing_distribution[i]
 
     return avg_infection_rate
-
-def gradientfunction(nodes, curing, last_nodes):
-    f = 0
-    for i in range(len(nodes)):
-        red_sum = sum(nodes[i].additional_red)
-        black_sum = sum(nodes[i].additional_black)
-        for neighbor in nodes[i].neighborhood:
-            red_sum = red_sum + sum(neighbor.additional_red)
-            black_sum = black_sum + sum(neighbor.additional_black)
-            
-        total_red, total_black = nodes[i].construct_super_urn(nodes)
-        total_red_prev, total_black_prev = last_nodes[i].construct_super_urn(last_nodes)
-        c = total_red + node.delta_red * (total_red_prev / (total_black_prev + total_red_prev) ) + red_sum
-        d = c + total_black + black_sum
-
-        sigma = curing[i]*(1 - (total_red_prev / (total_black_prev + total_red_prev) ))
-
-        for j in range(len(last_nodes[i].neighborhood)):
-            n_red, n_black = last_nodes[i].neighborhood[j].construct_super_urn(last_nodes)
-            neighbor_exp = (n_red / (n_red + n_black))
-
-            sigma = sigma + curing[j]*(1-neighbor_exp)
-
-        f = f + c / (d + sigma)
-    f = f / len(nodes)
-
-    return f
-        
-    
 
 def main():
     trials = 5000
