@@ -86,9 +86,10 @@ def distribute_curing(nodes, last_nodes, budget):
 
     # limit minimization
     alphas = []
-    for i in range(1000):
-        alphas.append(gradient_function(nodes, [nodes[0].delta_black + i * \
-            (distribution[0] - nodes[0].delta_black), nodes[1].delta_black + \
+    # hack way to iterate on [0,1] in increments of 0.001
+    for i in range(1001):
+        alphas.append(gradient_function(nodes, [nodes[0].delta_black + i * 0.001 \
+            * (distribution[0] - nodes[0].delta_black), nodes[1].delta_black + \
             i * 0.001 * (distribution[1] - nodes[1].delta_black)], last_nodes))
 
     alpha_k = sorted(alphas)[0]
