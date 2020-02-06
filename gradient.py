@@ -93,9 +93,14 @@ def distribute_curing(nodes, last_nodes, budget):
 
     alpha_k = sorted(alphas)[0]
 
-    return [nodes[0].delta_black + alpha_k * \
-            (distribution[0] - nodes[0].delta_black), nodes[1].delta_black + \
-            alpha_k * (distribution[1] - nodes[1].delta_black)]
+    curing = [int(nodes[0].delta_black + alpha_k * \
+            (distribution[0] - nodes[0].delta_black)), int(nodes[1].delta_black + \
+            alpha_k * (distribution[1] - nodes[1].delta_black))]
+
+    # add remaining budget lost to rounding to the most influential node
+    curing[index] += budget - sum(curing)
+
+    return curing
 
 
 # size is the number of nodes
@@ -125,7 +130,7 @@ def simulation(adjacency, NodeType, runtime, result):
     return avg_infection_rate
 
 def main():
-    trials = 5000
+    trials = 500
     runtime = 1000
     if METHOD == '-f':
         adj_matrix = load_graph(PARAMETER)
@@ -135,26 +140,26 @@ def main():
         raise ValueError('Program expects method flag')
 
     avg_finite_network = [0 for x in range(runtime)]
-    avg_infinite_network = [0 for x in range(runtime)]
-    avg_sis_network = [0 for x in range(runtime)]
+   # avg_infinite_network = [0 for x in range(runtime)]
+   # avg_sis_network = [0 for x in range(runtime)]
 
     print('Simulating...')
     for x in tqdm(range(trials)):
         finite_network = simulation(adj_matrix, FiniteNode, runtime, RESULT)
-        infinite_network = simulation(adj_matrix, InfiniteNode, runtime, RESULT)
-        sis_network = sis_simulation(adj_matrix, runtime, RESULT)
+   #     infinite_network = simulation(adj_matrix, InfiniteNode, runtime, RESULT)
+   #     sis_network = sis_simulation(adj_matrix, runtime, RESULT)
 
         avg_finite_network = [ x + y for x,y in zip(avg_finite_network,finite_network) ]
-        avg_infinite_network = [ x + y for x,y in zip(avg_infinite_network,infinite_network) ]
-        avg_sis_network = [ x + y for x,y in zip(avg_sis_network,sis_network) ]
+   #     avg_infinite_network = [ x + y for x,y in zip(avg_infinite_network,infinite_network) ]
+   #     avg_sis_network = [ x + y for x,y in zip(avg_sis_network,sis_network) ]
     avg_finite_network = [ x / trials for x in avg_finite_network ]
-    avg_infinite_network = [ x / trials for x in avg_infinite_network ]
-    avg_sis_network = [ x / trials for x in avg_sis_network ]
+   # avg_infinite_network = [ x / trials for x in avg_infinite_network ]
+   # avg_sis_network = [ x / trials for x in avg_sis_network ]
 
     plt.figure('SuperimposedInfectionRates')
-    plt.plot(range(runtime), avg_finite_network, 'r-', label='Memory 50')
-    plt.plot(range(runtime), avg_infinite_network, 'b-', label='Infinite Memory')
-    plt.plot(range(runtime), avg_sis_network, 'k-', label='SIS')
+    plt.plot(range(runtime), avg_finite_network, 'r-', label='Memory 12')
+   # plt.plot(range(runtime), avg_infinite_network, 'b-', label='Infinite Memory')
+   # plt.plot(range(runtime), avg_sis_network, 'k-', label='SIS')
     plt.legend()
     plt.show()
 
