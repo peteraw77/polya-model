@@ -101,7 +101,6 @@ def distribute_curing(nodes, last_nodes, budget):
 
     return curing
 
-
 # size is the number of nodes
 def simulation(adjacency, NodeType, runtime, result):
     nodes = build_network(adjacency, NodeType, result)
