@@ -10,7 +10,7 @@ import numpy as np
 from tqdm import tqdm
 import sys
 from sympy import derive_by_array
-from sympy.abc import x,y
+from sympy.abc import u,w,x,y,z
 
 METHOD = sys.argv[1]
 PARAMETER = sys.argv[2]
@@ -20,7 +20,7 @@ RESULT = sys.argv[3]
 def construct_barabasi_graph(size):
     # consider using variable size for number of connections
     #graph = nx.barabasi_albert_graph(size, 5)
-    graph = nx.barabasi_albert_graph(size, 1)
+    graph = nx.barabasi_albert_graph(size, 3)
     edges = graph.edges
 
     # build adjacency matrix
@@ -70,11 +70,11 @@ def build_network(adjacency, NodeType, result):
 
 def distribute_curing(nodes, last_nodes, budget):
     # get component derivatives of f
-    partials = derive_by_array(gradient_function(nodes, [x, y], last_nodes), [x, y])
+    partials = derive_by_array(gradient_function(nodes, [u,w,x,y,z], last_nodes), [u,w,x,y,z])
 
     # identify the steepest descent
     # substitute the current values of x1,x2
-    descents = [float(partial.subs([(x, nodes[0].delta_black), (y, nodes[1].delta_black)])) \
+    descents = [float(partial.subs(zip([u,w,x,y,z], [node.delta_black for node in nodes]))) \
             for partial in partials]
 
     # find the deepest descent
@@ -88,15 +88,13 @@ def distribute_curing(nodes, last_nodes, budget):
     alphas = []
     # hack way to iterate on [0,1] in increments of 0.001
     for i in range(1001):
-        alphas.append(gradient_function(nodes, [nodes[0].delta_black + i * 0.001 \
-            * (distribution[0] - nodes[0].delta_black), nodes[1].delta_black + \
-            i * 0.001 * (distribution[1] - nodes[1].delta_black)], last_nodes))
+        alphas.append(gradient_function(nodes, [ node.delta_black + i * 0.001 * \
+                (value - node.delta_black) for node,value in zip(nodes,distribution) ], last_nodes))
 
     alpha_k = sorted(alphas)[0]
 
-    curing = [int(nodes[0].delta_black + alpha_k * \
-            (distribution[0] - nodes[0].delta_black)), int(nodes[1].delta_black + \
-            alpha_k * (distribution[1] - nodes[1].delta_black))]
+    curing = [ int(node.delta_black + alpha_k * (value - node.delta_black)) for \
+            node,value in zip(nodes,distribution) ]
 
     # add remaining budget lost to rounding to the most influential node
     curing[index] += budget - sum(curing)
