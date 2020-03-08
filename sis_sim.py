@@ -40,17 +40,21 @@ def initial_params(adj_matrix, result):
     # Get maximum magnitude eigenvalue
     max_eig = numpy.amax(w)
 
+    delta = 0.4
     if result == 'infected':
+        beta = (10*delta) / max_eig
         # This makes delta/beta = max_eig/10
-        delta = max_eig / (10 + max_eig)
-        beta = 10 / (10 + max_eig)
+        #delta = max_eig / (10 + max_eig)
+        #beta = 10 / (10 + max_eig)
     elif result == 'cured':
         # delta/beta = 1.01*max_eig
-        delta = (1.01 * max_eig) / (1.01*max_eig + 1)
-        beta = 1 / (1.01*max_eig +1)
+        beta = delta / (1.01*max_eig)
+        #delta = (1.01 * max_eig) / (1.01*max_eig + 1)
+        #beta = 1 / (1.01*max_eig +1)
     elif result == 'neutral':
-        delta = 0.5
-        beta = 0.5
+        #delta = 0.5
+        #beta = 0.4
+        beta = delta / max_eig
     else:
         raise ValueError("Invalid RESULT flag")
 
