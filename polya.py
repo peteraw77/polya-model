@@ -120,3 +120,55 @@ def gradient_function(nodes, curing, last_nodes):
     f = f / len(nodes)
 
     return f
+
+def f_n(nodes, curing, last_nodes):
+    f = 0
+    for i in range(len(nodes)):
+        for previous in last_nodes:
+            delta_red_sum = 0
+            delta_black_sum = 0
+            for j in previous[i].neighborhood:
+                delta_red_sum += sum(previous[j].additional_red)
+                delta_black_sum += sum(previous[j].additional_black)
+        total_red, total_black = nodes[i].construct_super_urn(nodes)
+        total_red_prev, total_black_prev = last_nodes[-1][i].construct_super_urn(last_nodes[-1])
+
+        c = total_red + delta_red_sum + nodes[i].delta_red * \
+                (total_red_prev / (total_red_prev + total_black_prev))
+        d = c + total_black + delta_black_sum
+
+        sigma = 0
+        for j in last_nodes[-1][i].neighborhood:
+            red,black = last_nodes[-1][j].construct_super_urn(last_nodes[-1])
+            sigma += curing[j] * (1 - red / (red + black))
+
+        f += c / (d + sigma)
+
+    return f / len(nodes)
+
+def f_n_memoryless(nodes, curing, last_nodes):
+    f = 0
+    for i in range(len(nodes)):
+        for previous in last_nodes:
+            delta_red_sum = 0
+            delta_black_sum = 0
+            for j in nodes[i].neighborhood:
+                # should be previous[j].delta_x, not sum()
+                delta_red_sum += sum(nodes[j].additional_red)
+                delta_black_sum += sum(nodes[j].additional_black)
+        total_red, total_black = nodes[i].construct_super_urn(nodes)
+        total_red_prev = total_red - nodes[i].additional_red[-1]
+        total_black_prev = total_black - nodes[i].additional_black[-1]
+
+        c = total_red + delta_red_sum + nodes[i].delta_red * \
+                (total_red_prev / (total_red_prev + total_black_prev))
+        d = c + total_black + delta_black_sum
+
+        sigma = 0
+        for j in last_nodes[-1][i].neighborhood:
+            red,black = last_nodes[-1][j].construct_super_urn(last_nodes[-1])
+            sigma += curing[j] * (1 - red / (red + black))
+
+        f += c / (d + sigma)
+
+    return f / len(nodes)

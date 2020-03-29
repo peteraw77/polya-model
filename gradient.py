@@ -1,6 +1,6 @@
 import networkx as nx
 from copy import deepcopy
-from polya import FiniteNode, InfiniteNode, network_infection_rate, gradient_function
+from polya import FiniteNode, InfiniteNode, network_infection_rate, f_n
 from sis_sim import simulation as sis_simulation
 import matplotlib.pyplot as plt
 from scipy.io import loadmat, savemat
@@ -11,6 +11,7 @@ from tqdm import tqdm
 import sys
 from sympy import derive_by_array
 from sympy.abc import u,w,x,y,z
+from network_exposure_fcn import network_exposure
 
 METHOD = sys.argv[1]
 PARAMETER = sys.argv[2]
@@ -70,12 +71,18 @@ def build_network(adjacency, NodeType, result):
 
 def distribute_curing(nodes, last_nodes, budget):
     # get component derivatives of f
-    partials = derive_by_array(gradient_function(nodes, [u,w,x,y,z], last_nodes), [u,w,x,y,z])
+#    partials = derive_by_array(f_n(nodes, [u,w,x,y,z], last_nodes), [u,w,x,y,z])
 
     # identify the steepest descent
     # substitute the current values of x1,x2
-    descents = [float(partial.subs(zip([u,w,x,y,z], [node.delta_black for node in nodes]))) \
-            for partial in partials]
+#    descents = [float(partial.subs(zip([u,w,x,y,z], [node.delta_black for node in nodes]))) \
+#            for partial in partials]
+    descents = []
+    for i in range(len(nodes)):
+        current = [node.delta_black for node in nodes]
+        direction = deepcopy(current)
+        direction[i] += 1
+        descents.append(f_n(nodes, direction, last_nodes) - f_n(nodes, current, last_nodes))
 
     # find the deepest descent
     index = descents.index(sorted(descents)[0])
@@ -88,22 +95,29 @@ def distribute_curing(nodes, last_nodes, budget):
     alphas = []
     # hack way to iterate on [0,1] in increments of 0.001
     for i in range(1001):
-        alphas.append(gradient_function(nodes, [ node.delta_black + i * 0.001 * \
-                (value - node.delta_black) for node,value in zip(nodes,distribution) ], last_nodes))
+        alphas.append((i * 0.001, f_n(nodes, [ (node.delta_black + i * 0.001 * \
+                (value - node.delta_black)) for node,value in zip(nodes,distribution) ], last_nodes)))
 
-    alpha_k = sorted(alphas)[0]
+    alpha_k = sorted(alphas, key=lambda alpha: alpha[1])[0][0]
 
-    curing = [ int(node.delta_black + alpha_k * (value - node.delta_black)) for \
+    curing = [ round(node.delta_black + alpha_k * (value - node.delta_black)) for \
             node,value in zip(nodes,distribution) ]
 
     # add remaining budget lost to rounding to the most influential node
-    curing[index] += budget - sum(curing)
+    #curing[index] += budget - sum(curing)
+#    print('\nCurrent Params')
+#    print(alpha_k)
+#    print(alphas[0])
+#    print(sorted(alphas, key=lambda alpha: alpha[1])[0])
+#    print(distribution)
+#    print(curing)
 
     return curing
 
 # size is the number of nodes
 def simulation(adjacency, NodeType, runtime, result):
     nodes = build_network(adjacency, NodeType, result)
+    last_nodes = []
 
     # run the simulation
     avg_infection_rate = []
@@ -120,15 +134,16 @@ def simulation(adjacency, NodeType, runtime, result):
         for node in new_nodes:
             node.draw(nodes)
         # don't update any nodes until all draws have been made
-        curing_distribution = distribute_curing(new_nodes, nodes, 4)
+        last_nodes.append(nodes)
         nodes = new_nodes
+        curing_distribution = distribute_curing(nodes, last_nodes, 10)
         for i in range(len(curing_distribution)):
             nodes[i].delta_black = curing_distribution[i]
 
     return avg_infection_rate
 
 def main():
-    trials = 500
+    trials = 50
     runtime = 1000
     if METHOD == '-f':
         adj_matrix = load_graph(PARAMETER)
