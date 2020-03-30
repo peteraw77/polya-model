@@ -2,7 +2,7 @@ import random
 random.seed()
 
 class InfiniteNode:
-    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, delta_red=1, delta_black=1):
+    def __init__(self, neighborhood=[], red_balls=5, black_balls=10, delta_red=1, delta_black=1):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
         self.black_balls = black_balls
@@ -41,7 +41,7 @@ class InfiniteNode:
             return 0
 
 class FiniteNode:
-    def __init__(self, neighborhood=[], red_balls=1, black_balls=1, memory=12, delta_red=1, delta_black=1):
+    def __init__(self, neighborhood=[], red_balls=10, black_balls=10, memory=150, delta_red=1, delta_black=1):
         self.neighborhood = neighborhood
         self.red_balls = red_balls
         self.black_balls = black_balls

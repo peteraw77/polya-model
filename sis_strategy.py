@@ -34,7 +34,7 @@ def load_graph(filename):
     return adjacency
 
 
-def build_network(adjacency, NodeType):
+def build_network(adjacency):
     nodes = [None for x in range(len(adjacency))]
 
     graph = nx.from_numpy_matrix(adjacency)
@@ -78,8 +78,8 @@ def build_network(adjacency, NodeType):
     return nodes
 
 # size is the number of nodes
-def simulation(adjacency, NodeType, runtime):
-    nodes = build_network(adjacency, NodeType)
+def simulation(adjacency, runtime):
+    nodes = build_network(adjacency)
 
     # run the simulation
     avg_infection_rate = []
@@ -114,7 +114,7 @@ def main():
 
     print('Simulating...')
     for x in tqdm(range(trials)):
-        finite_network = simulation(adj_matrix, FiniteNode, runtime)
+        finite_network = simulation(adj_matrix, runtime)
 
         avg_finite_network = [ x + y for x,y in zip(avg_finite_network,finite_network) ]
 
