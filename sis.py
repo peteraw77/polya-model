@@ -2,13 +2,13 @@ import random
 random.seed()
 
 class SISNode:
-    def __init__(self, delta, beta, neighborhood=[], status = 0, prob_infection = 0):
+    def __init__(self, delta, beta, neighborhood=[], status = 0, prob_infection = (2/3)):
         self.neighborhood = neighborhood
         self.status = status
         self.delta = delta
         self.beta = beta
         # Initial prob same as initial ratio of red balls in urns
-        self.prob_infection = 0.5
+        self.prob_infection = prob_infection
 
     def add_neighbor(self, neighbor):
         self.neighborhood.append(neighbor)
