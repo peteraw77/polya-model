@@ -1,6 +1,6 @@
 import networkx as nx
 from copy import deepcopy
-from polya import FiniteNode, InfiniteNode, network_infection_rate, f_n
+from polya import FiniteNode, InfiniteNode, network_infection_rate, f_n_memoryless
 from sis_sim import simulation as sis_simulation
 import matplotlib.pyplot as plt
 from scipy.io import loadmat, savemat
@@ -71,7 +71,7 @@ def build_network(adjacency, NodeType, result):
 
 def distribute_curing(nodes, last_nodes, budget):
     # get component derivatives of f
-#    partials = derive_by_array(f_n(nodes, [u,w,x,y,z], last_nodes), [u,w,x,y,z])
+#    partials = derive_by_array(f_n_memoryless(nodes, [u,w,x,y,z], last_nodes), [u,w,x,y,z])
 
     # identify the steepest descent
     # substitute the current values of x1,x2
@@ -82,7 +82,7 @@ def distribute_curing(nodes, last_nodes, budget):
         current = [node.delta_black for node in nodes]
         direction = deepcopy(current)
         direction[i] += 1
-        descents.append(f_n(nodes, direction, last_nodes) - f_n(nodes, current, last_nodes))
+        descents.append(f_n_memoryless(nodes, direction, last_nodes) - f_n_memoryless(nodes, current, last_nodes))
 
     # find the deepest descent
     index = descents.index(sorted(descents)[0])
@@ -95,7 +95,7 @@ def distribute_curing(nodes, last_nodes, budget):
     alphas = []
     # hack way to iterate on [0,1] in increments of 0.001
     for i in range(1001):
-        alphas.append((i * 0.001, f_n(nodes, [ (node.delta_black + i * 0.001 * \
+        alphas.append((i * 0.001, f_n_memoryless(nodes, [ (node.delta_black + i * 0.001 * \
                 (value - node.delta_black)) for node,value in zip(nodes,distribution) ], last_nodes)))
 
     alpha_k = sorted(alphas, key=lambda alpha: alpha[1])[0][0]
