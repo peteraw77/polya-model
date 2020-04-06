@@ -1,7 +1,6 @@
 import networkx as nx
 from copy import deepcopy
 from polya import FiniteNode, InfiniteNode, network_infection_rate, f_n_memoryless
-from sis_sim import simulation as sis_simulation
 import matplotlib.pyplot as plt
 from scipy.io import loadmat, savemat
 import numpy as np
@@ -15,7 +14,6 @@ from network_exposure_fcn import network_exposure
 
 METHOD = sys.argv[1]
 PARAMETER = sys.argv[2]
-RESULT = sys.argv[3]
 
 # hello
 def construct_barabasi_graph(size):
@@ -158,7 +156,7 @@ def main():
 
     print('Simulating...')
     for x in tqdm(range(trials)):
-        finite_network = simulation(adj_matrix, FiniteNode, runtime, RESULT)
+        finite_network = simulation(adj_matrix, FiniteNode, runtime, "neutral")
    #     infinite_network = simulation(adj_matrix, InfiniteNode, runtime, RESULT)
    #     sis_network = sis_simulation(adj_matrix, runtime, RESULT)
 
