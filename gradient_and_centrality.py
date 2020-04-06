@@ -1,7 +1,6 @@
 import networkx as nx
 from copy import deepcopy
 from polya import FiniteNode, InfiniteNode, network_infection_rate, f_n
-from sis_sim import simulation as sis_simulation
 import matplotlib.pyplot as plt
 from scipy.io import loadmat, savemat
 import numpy as np
@@ -9,8 +8,6 @@ from datetime import date
 import numpy as np
 from tqdm import tqdm
 import sys
-from sympy import derive_by_array
-from sympy.abc import u,w,x,y,z
 from network_exposure_fcn import network_exposure
 
 from gradient import construct_barabasi_graph, load_graph
@@ -36,7 +33,7 @@ def main():
     print('Simulating...')
     for x in tqdm(range(trials)):
         gradient_network = gradient_simulation(adj_matrix, FiniteNode, runtime, 'neutral')
-        centrality_network = heuristic_simulation(adj_matrix, FiniteNode, runtime, 'centrality')
+        centrality_network = heuristic_simulation(np.array(adj_matrix), runtime, 'centrality')
 
         avg_gradient_network = [ x + y for x,y in zip(avg_gradient_network,gradient_network) ]
         avg_centrality_network = [ x + y for x,y in zip(centrality_network,centrality_network) ]
