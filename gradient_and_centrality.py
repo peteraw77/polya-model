@@ -44,7 +44,7 @@ def main():
     plt.plot(range(runtime), avg_gradient_network, 'r-', label='Gradient, Memory 150')
     plt.plot(range(runtime), avg_centrality_network, 'b-', label='Centrality, Memory 150')
     plt.legend()
-    plt.show()
+    plt.savefig("gradient_and_centraylity" + str(date.today()) + ".png")
 
 if __name__ == '__main__':
     main()
